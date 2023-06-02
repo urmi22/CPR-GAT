@@ -25,15 +25,11 @@ class GAT(torch.nn.Module):
         self.lin1 = Linear(-1, out_channels1)
         self.conv2 = GATConv(out_channels1, out_channels2, add_self_loops=False)
         self.lin2 = Linear(-1, out_channels2)
-        # self.conv3 = GATConv(out_channels2, out_channels3, add_self_loops=False)
-        # self.lin3 = Linear(-1, out_channels3)
 
     def forward(self, x, edge_index):
         x = self.conv1(x, edge_index) + self.lin1(x)
         x = x.relu()
         x = self.conv2(x, edge_index) + self.lin2(x)
-        # x = x.relu()
-        # x = self.conv3(x, edge_index) + self.lin3(x)
         return x
 
 
@@ -94,25 +90,25 @@ def find_true_label(ccf, p_i):
 
 def main():
 
-	with open("./MOOC/DSA/data/train-data-index.txt", 'r') as f1:
+	with open("./MOOC-DSA/data/train-data-index.txt", 'r') as f1:
 		train_data = f1.readlines()
 	
 	train_data = [tuple(map(int, sample.split())) for sample in train_data]
 	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 	print(device)
 
-	df = np.loadtxt("./MOOC/DSA/feature/extreme-value-feature/df.txt")
-	cf = np.loadtxt("./MOOC/DSA/feature/extreme-value-feature/cf.txt")
-	dcf = np.loadtxt("./MOOC/DSA/feature/extreme-value-feature/dcf.txt")
-	ddf = np.loadtxt("./MOOC/DSA/feature/extreme-value-feature/ddf.txt")
-	ccf = np.loadtxt("./MOOC/DSA/feature/extreme-value-feature/ccf.txt")
+	df = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/df.txt")
+	cf = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/cf.txt")
+	dcf = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/dcf.txt")
+	ddf = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/ddf.txt")
+	ccf = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/ccf.txt")
 
 	data = HeteroData()
 
 	data['concept'].x = torch.tensor(cf)
-	data['concept'].num_nodes = 266
+	data['concept'].num_nodes = cf.shape[0]
 	data['document'].x = torch.tensor(df)
-	data['document'].num_nodes = 449
+	data['document'].num_nodes = df.shape[0]
 
 	dcf_value, coo_dcf = coo_format(dcf)
 	ddf_value, coo_ddf = coo_format(ddf)
@@ -140,13 +136,10 @@ def main():
 	td = shuffle(train_data)
 	
 	for i_fold, (train_idx, test_idx) in enumerate(kf.split(td)):
-
-		# print("TRAIN:", train_idx, "TEST:", test_idx)
 		gat = GAT().to(device)
 		siamesenet = SiameseNet().to(device)
 
 		optimizer = torch.optim.Adam(list(gat.parameters())+list(siamesenet.parameters()), lr = 0.000001)
-		# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = 50, gamma = 0.99)
 		criterion = nn.BCELoss()
 
 		X_train = [td[each_idx] for each_idx in train_idx]
@@ -158,7 +151,6 @@ def main():
 		print("Training!!!!")
 		
 		for epoch in range(epochs):
-			
 			X_train = np.array(shuffle(X_train))
 
 			total_loss = 0
@@ -216,11 +208,6 @@ def main():
 		pred_label_test = [1 if prob >= 0.5 else 0 for prob in pred_prob_test]
 
 		print(classification_report(target_label_test, pred_label_test, target_names=target_names))
-
-		# scheduler.step()
-
-
-
 
 
 if __name__ == '__main__':

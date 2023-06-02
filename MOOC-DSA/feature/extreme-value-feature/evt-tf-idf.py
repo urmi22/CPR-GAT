@@ -21,9 +21,6 @@ from nltk.stem import WordNetLemmatizer
 from collections import defaultdict
 
 
-start_time = time.time()
-lemmatizer = WordNetLemmatizer()
-
 
 def remove_punc(string):
 
@@ -49,7 +46,6 @@ def fetch_docs(path):
 
 
 def load_glove_model(File):
-
 	print("Loading Glove Model")
 
 	glove_model = {}
@@ -66,36 +62,20 @@ def load_glove_model(File):
 
 
 def concept_index(concepts):
-
 	c_to_i = {concept: i for i, concept in enumerate(concepts)}
 
 	return c_to_i
 
 
 def doc_index(docs):
-
 	d_to_i = {doc: i for i, doc in enumerate(docs)}
 
 	return d_to_i
 
 
-def lemma(string):
-	# lematize a string
-	word_list = nltk.word_tokenize(string)
-	lematized_string = ' '.join([lemmatizer.lemmatize(w) for w in word_list])
-	return lematized_string
-
 
 def build_concept_feature(concepts, gm):
-	prev_concepts = concepts
 	concept_feature = {}
-
-	# Lematize the concepts
-	# lematized_concepts = {}
-	# for concept in concepts:
-	# 	lematized_concepts[concept] = lemma(concept)
-
-	# concepts = list(np.unique(list(lematized_concepts.values())))
 
 	for concept in concepts:
 		words = concept.split()
@@ -117,32 +97,21 @@ def build_concept_feature(concepts, gm):
 	mat = np.matrix(concept_feature_matrix)
 	print("Shape of concept_feature {}".format(mat.shape))
 	
-	with open('./MOOC/DSA/feature/extreme-value-feature/cf.txt','wb') as f:
+	with open('./MOOC-DSA/feature/extreme-value-feature/cf.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 
 	print("Concept feature file created!")
 	return  concept_to_index, concept_feature
 
-	# return concepts, concept_to_index, concept_feature
 
 
 def build_doc_feature(docs, concepts, cf):
-
 	doc_feature = {}
 
-	# Lematize the docs
-	# lematized_docs = {}
-	# for doc in docs:
-	# 	lematized_docs[doc] = lemma(doc)
-
 	for i, doc in enumerate(docs):
-		
-		# print("Processing {} doc".format(i))
 		tmp_list = []
-		# doc_lemma = lematized_docs[doc]
-
-		#because concept is alrready lemmatized by build_concept_feature method
+		
 		for concept in concepts:
 			if concept in doc:
 				tmp_list.append(concept)
@@ -155,21 +124,19 @@ def build_doc_feature(docs, concepts, cf):
 
 	print("Document feature extracted!")
 	
-	# unique_docs = list(doc_feature.keys())
 	doc_to_index = doc_index(docs)
 
 	doc_feature_matrix = np.array([doc_feature[i] for i in docs])
 	mat = np.matrix(doc_feature_matrix)
 	print("Shape of document_feature {}".format(mat.shape))
 
-	with open('./MOOC/DSA/feature/extreme-value-feature/df.txt','wb') as f:
+	with open('./MOOC-DSA/feature/extreme-value-feature/df.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 
 	print("Document feature file created!")
 	return doc_to_index, doc_feature
 	
-	# return unique_docs, doc_to_index, doc_feature
 
 
 def ev_tfidf(docs, concepts, c_i, d_i):
@@ -220,9 +187,6 @@ def ev_tfidf(docs, concepts, c_i, d_i):
 			IDF = math.log10(total_num_docs / (doc_count[concept] + 1))
 			weight = (F_x1 + F_x2) * IDF
 
-			# print(concept, concept_count, tf, IDF, weight)
-		# pdb.set_trace()
-
 			doc_to_concept[d_i[doc],c_i[concept]] = np.around(weight,4)
 			
 	
@@ -231,7 +195,7 @@ def ev_tfidf(docs, concepts, c_i, d_i):
 	mat = np.matrix(doc_to_concept)
 	print("Shape of document-concept-edge_feature {}".format(mat.shape))
 
-	with open('./MOOC/DSA/feature/extreme-value-feature/dcf.txt','wb') as f:
+	with open('./MOOC-DSA/feature/extreme-value-feature/dcf.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 			
@@ -256,7 +220,7 @@ def cos_sim(docs, df):
 	mat = np.matrix(doc_to_doc)
 	print("Shape of document-document-edge_feature {}".format(mat.shape))
 
-	with open('./MOOC/DSA/feature/extreme-value-feature/ddf.txt','wb') as f:
+	with open('./MOOC-DSA/feature/extreme-value-feature/ddf.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 
@@ -307,7 +271,7 @@ def pmi(docs, concepts):
 	mat = np.matrix(concept_to_concept)
 	print("Shape of concept-concept-edge_feature {}".format(mat.shape))
 
-	with open('./MOOC/DSA/feature/extreme-value-feature/ccf.txt','wb') as f:
+	with open('./MOOC-DSA/feature/extreme-value-feature/ccf.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 
@@ -323,9 +287,10 @@ def pmi(docs, concepts):
 
 def main():
 
-	with open("./MOOC/DSA/data/concepts.txt", 'r') as f:
+	with open("./MOOC-DSA/data/concepts.txt", 'r') as f:
 		all_concepts = f.readlines()
 	
+	# download glove.6B.300d.txt and put this file path in the glove_path variable
 	glove_path = "../../datasets/glove.6B/glove.6B.300d.txt"
 	glove_model = load_glove_model(glove_path)
 
@@ -333,7 +298,7 @@ def main():
 	
 	concept_to_index, concept_feature = build_concept_feature(concepts, glove_model)
 	
-	docs = fetch_docs('./MOOC/DSA/data/docs')
+	docs = fetch_docs('./MOOC-DSA/data/docs')
 	doc_to_index, doc_feature = build_doc_feature(docs, concepts, concept_feature)
 	
 	doc_concept_edge_feature = ev_tfidf(docs, concepts, concept_to_index, doc_to_index)
