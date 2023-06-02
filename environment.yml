@@ -170,4 +170,4 @@ dependencies:
       - tokenizers==0.13.2
       - transformers==4.26.1
       - typing==3.6.6
-prefix: /home/debjani/miniconda3/envs/prereq
+
