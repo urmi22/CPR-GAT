@@ -13,13 +13,13 @@ import torch.nn as nn
 
 from torch_geometric.data import HeteroData
 from torch_geometric.nn import to_hetero
-from torch_geometric.nn import GATConv, Linear, GATv2Conv
+from torch_geometric.nn import GATConv, Linear
 
 
 
 
 class GAT(torch.nn.Module):
-    def __init__(self, in_channels=300, out_channels1=128, out_channels2=512): #out_channels3=512):
+    def __init__(self, in_channels=300, out_channels1=128, out_channels2=512):
         super(GAT,self).__init__()
         self.conv1 = GATConv(in_channels, out_channels1, add_self_loops=False)
         self.lin1 = Linear(-1, out_channels1)
@@ -97,11 +97,11 @@ def main():
 	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 	print(device)
 
-	df = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/df.txt")
-	cf = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/cf.txt")
-	dcf = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/dcf.txt")
-	ddf = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/ddf.txt")
-	ccf = np.loadtxt("./MOOC-DSA/feature/extreme-value-feature/ccf.txt")
+	df = np.loadtxt("./MOOC-DSA/feature/df.txt")
+	cf = np.loadtxt("./MOOC-DSA/feature/cf.txt")
+	dcf = np.loadtxt("./MOOC-DSA/feature/dcf.txt")
+	ddf = np.loadtxt("./MOOC-DSA/feature/ddf.txt")
+	ccf = np.loadtxt("./MOOC-DSA/feature/ccf.txt")
 
 	data = HeteroData()
 

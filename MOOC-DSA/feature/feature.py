@@ -97,7 +97,7 @@ def build_concept_feature(concepts, gm):
 	mat = np.matrix(concept_feature_matrix)
 	print("Shape of concept_feature {}".format(mat.shape))
 	
-	with open('./MOOC-DSA/feature/extreme-value-feature/cf.txt','wb') as f:
+	with open('./MOOC-DSA/feature/cf.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 
@@ -130,7 +130,7 @@ def build_doc_feature(docs, concepts, cf):
 	mat = np.matrix(doc_feature_matrix)
 	print("Shape of document_feature {}".format(mat.shape))
 
-	with open('./MOOC-DSA/feature/extreme-value-feature/df.txt','wb') as f:
+	with open('./MOOC-DSA/feature/df.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 
@@ -195,7 +195,7 @@ def ev_tfidf(docs, concepts, c_i, d_i):
 	mat = np.matrix(doc_to_concept)
 	print("Shape of document-concept-edge_feature {}".format(mat.shape))
 
-	with open('./MOOC-DSA/feature/extreme-value-feature/dcf.txt','wb') as f:
+	with open('./MOOC-DSA/feature/dcf.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 			
@@ -220,7 +220,7 @@ def cos_sim(docs, df):
 	mat = np.matrix(doc_to_doc)
 	print("Shape of document-document-edge_feature {}".format(mat.shape))
 
-	with open('./MOOC-DSA/feature/extreme-value-feature/ddf.txt','wb') as f:
+	with open('./MOOC-DSA/feature/ddf.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 
@@ -271,7 +271,7 @@ def pmi(docs, concepts):
 	mat = np.matrix(concept_to_concept)
 	print("Shape of concept-concept-edge_feature {}".format(mat.shape))
 
-	with open('./MOOC-DSA/feature/extreme-value-feature/ccf.txt','wb') as f:
+	with open('./MOOC-DSA/feature/ccf.txt','wb') as f:
 		for line in mat:
 			np.savetxt(f, line, fmt ='%.6f')
 
